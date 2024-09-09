@@ -1,15 +1,15 @@
 import pygame
+import constants
 from circleshape import CircleShape
-from constants import PLAYER_RADIUS
 
 class Player(CircleShape):
 
 
     def __init__(self, x, y):
-        super().__init__(x, y, PLAYER_RADIUS)
+        super().__init__(x, y, constants.PLAYER_RADIUS)
         self.rotation = 0
 
-
+    # Define the triangle shape of the player
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * self.radius / 1.5
@@ -23,3 +23,33 @@ class Player(CircleShape):
                             pygame.Color(255, 255, 255),
                             self.triangle(),
                             2 )
+    
+    def rotate(self, dt):
+        self.rotation += (constants.PLAYER_TURN_SPEED * dt)
+    
+    def move(self, dt):
+        # if player postiton is out of bounds move player postion to a point in bounds
+        if self.position[0] < 0:
+            self.position[0] = 0
+        elif self.position[0] > constants.SCREEN_WIDTH:
+            self.position[0] = constants.SCREEN_WIDTH
+        elif self.position[1] < 0:
+            self.position[1] = 0
+        elif self.position[1] > constants.SCREEN_HEIGHT:
+            self.position[1] = constants.SCREEN_HEIGHT
+        else:
+            forward = pygame.Vector2(0, 1).rotate(self.rotation)
+            self.position += forward * constants.PLAYER_SPEED * dt
+
+
+    def update(self, dt):
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_a]:
+            self.rotate(-dt)
+        if keys[pygame.K_d]:
+            self.rotate(dt)
+        if keys[pygame.K_w]:
+            self.move(dt)
+        if keys[pygame.K_s]:
+            self.move(-dt)
